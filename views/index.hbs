@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<style>
+    body {
+        padding: 10px;
+        font-family: "Muli", sans-serif !important;
+        max-width: 1400px;
+        margin: auto;
+        background: whitesmoke;
+    }
+
+    .other-matrix {
+      padding: 40px 0px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      font-size: 15px;
+    }
+
+    .list-item::-webkit-scrollbar {
+        display: none;
+    }
+
+    .list-item {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    .other-matrix > .list-item {
+        max-height: 400px;
+        overflow: scroll;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        background: white;
+        margin: 3px;
+        padding: 10px;
+        border-radius: 5px;
+        line-height: 1.5;
+        color: #333333;
+    }
+
+    .other-matrix .list-item h3 {
+        font-size: 18px;
+        text-align: center;
+        border-bottom: 1px solid lightgrey;
+        padding-bottom: 15px;
+    }
+
+    .other-matrix .list-item .list {
+      padding: 3px;
+      display: grid;
+      grid-template-columns: 40px auto;
+    }
+    .other-matrix .list-item span {
+      margin-left: 10px;
+    }
+</style>
+</head>
+<body>
+    <canvas id="myChart" width="1400" height="800"></canvas>
+    <div class="other-matrix">
+      <div class="referrals list-item">
+        <h3>Traffic Source</h3>
+          {{#each data.[1].[0].data.rows}}
+            <div class="list" key={{this.metrics.[0].values.[0]}}>
+              <b>{{this.metrics.[0].values.[0]}}</b>
+              <span>{{this.dimensions.[0]}}</span>
+            </div>
+          {{/each}}
+      </div>
+
+      <div class="top-pages list-item">
+        <h3>Top Pages</h3>
+          {{#each data.[2].[0].data.rows}}
+            <div class="list" key={{this.metrics.[0].values.[0]}}>
+              <b>{{this.metrics.[0].values.[0]}}</b>
+              <span>{{this.dimensions.[0]}}</span>
+            </div>
+          {{/each}}
+
+      </div>
+      <div class="systems-data list-item">
+        <h3>Screens</h3>
+        {{#each data.[3].[0].data.rows}}
+        <div class="screens">
+            <div class="list" key={{this.metrics.[0].values.[0]}}>
+              <b>{{this.metrics.[0].values.[0]}}</b>
+              <span>{{this.dimensions.[0]}}</span>
+            </div>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="browsers list-item">
+        <h3>Browsers</h3>
+        {{#each data.[4].[0].data.rows}}
+          <div class="list" key={{this.metrics.[0].values.[0]}}>
+            <b>{{this.metrics.[0].values.[0]}}</b>
+            <span>{{this.dimensions.[0]}}</span>
+          </div>
+        {{/each}}
+      </div>
+
+      <div class="countries list-item">
+        <h3>Browsers</h3>
+        {{#each data.[5].[0].data.rows}}
+          <div class="list" key={{this.metrics.[0].values.[0]}}>
+            <b>{{this.metrics.[0].values.[0]}}</b>
+            <span>{{this.dimensions.[0]}}</span>
+          </div>
+        {{/each}}
+      </div>
+
+      </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script>
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [
+                    {{#each data.[0].[0].data.rows}} 
+                        {{this.dimensions.[0]}}, 
+                    {{/each}}
+                ],
+                datasets: [{
+                    label: 'Total Page Views - {{data.[0].[0].data.totals.[0].values.[0]}}',
+                    data: [
+                    {{#each data.[0].[0].data.rows}} 
+                        {{this.metrics.[0].values.[0]}}, 
+                    {{/each}}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                },{
+                    label: 'Total Users - {{data.[0].[0].data.totals.[0].values.[1]}}',
+                    data: [
+                    {{#each data.[0].[0].data.rows}} 
+                        {{this.metrics.[0].values.[1]}}, 
+                    {{/each}}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    
+    </script>
+</body>
+</html>

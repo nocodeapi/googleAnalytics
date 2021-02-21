@@ -1,120 +1,93 @@
 require("dotenv").config();
-const express = require("express");
+const   express = require("express"),
+        axios = require('axios'),
+        hbs = require('hbs');
 
 //create express app
 const app = express();
+app.set('view engine', 'hbs');
 
 //port at which the server will run
 const port = 4000;
 
-let resources = {
+let results = {
 
     fetchMyAPI : async () => {
-      const response = await fetch(
+      const response = await axios.get(
         `${
           process.env.API_ENDPOINT
         }?metrics=pageviews,users&startDate=30daysAgo&dimensions=date`
       );
-      const result = await response.json();
-
-      console.log(JSON.stringify(result[0]));
-
-      this.setState({ totalView: result[0] });
-
-      const datasets = [];
-      result.forEach((element, key) => {
-        const setData = {
-          label: element.name,
-          data: element.datasets
-        };
-        if (key === 0) {
-          setData.borderColor = "red";
-        }
-        if (key === 1) {
-          setData.borderColor = "green";
-        }
-        datasets.push(setData);
-      });
-
-      new Chart(myChartRef, {
-        type: "line",
-        data: {
-          // Bring in data
-          labels: result[0].labels,
-          datasets
-        },
-        options: {
-          // Customize chart options
-        }
-      });
+      return response.data;
     },
 
     fetchSource : async () => {
-      const response = await fetch(
+      const response = await axios.get(
         `${
           process.env.API_ENDPOINT
         }?metrics=pageviews&startDate=30daysAgo&dimensions=source&orderBys=descending`
       );
 
-      const result = await response.json();
-      const jsonArrayObjs = _.zipObject(result[0].labels, result[0].datasets);
-
-      this.setState({ source: result[0].data });
+      return response.data;
     },
 
     fetchPages: async () => {
-      const response = await fetch(
+      const response = await axios.get(
         `${
           process.env.API_ENDPOINT
         }?metrics=pageviews&startDate=30daysAgo&dimensions=pagePath&orderBys=descending`
       );
-      const result = await response.json();
-      const jsonArrayObjs = _.zipObject(result[0].labels, result[0].datasets);
-      this.setState({ pages: jsonArrayObjs });
+
+      return response.data;
     },
 
     fetchScreen : async () => {
-      const response = await fetch(
+      const response = await axios.get(
         `${
           process.env.API_ENDPOINT
         }?metrics=users&startDate=30daysAgo&dimensions=deviceCategory&orderBys=descending`
       );
-      const result = await response.json();
-      const jsonArrayObjs = _.zipObject(result[0].labels, result[0].datasets);
-      const allData = { data: jsonArrayObjs, total: result[0].totals };
-      this.setState({ screens: { ...allData } });
+
+      return response.data;
     },
 
     fetchBrowser : async () => {
-      const response = await fetch(
+      const response = await axios.get(
         `${
           process.env.API_ENDPOINT
         }?metrics=users&startDate=30daysAgo&dimensions=browser&orderBys=descending`
       );
-      const result = await response.json();
-      const jsonArrayObjs = _.zipObject(result[0].labels, result[0].datasets);
-      const allData = { data: jsonArrayObjs, total: result[0].totals };
-      this.setState({ browsers: { ...allData } });
+
+      return response.data;
     },
 
     fetchCountries: async () => {
-      const response = await fetch(
+      const response = await axios.get(
         `${
           process.env.API_ENDPOINT
         }?metrics=users&startDate=30daysAgo&dimensions=country&orderBys=descending`
       );
-      const result = await response.json();
-      const jsonArrayObjs = _.zipObject(result[0].labels, result[0].datasets);
-      const allData = { data: jsonArrayObjs, total: result[0].totals };
-      this.setState({ countries: { ...allData } });
+
+      return response.data;
     }
 
 }
 
 //create end point
-app.get("/", (request, response) => {
+app.get("/", async (req,res) => {
   //send 'Hi, from Node server' to client
-  response.send("Hi, from Node server");
+  let analyticsData = await Promise.all([
+      results.fetchMyAPI(),
+      results.fetchSource(),
+      results.fetchPages(),
+      results.fetchScreen(),
+      results.fetchBrowser(),
+      results.fetchCountries()
+  ]);
+
+  console.log(analyticsData);
+
+  res.render('index.hbs', {data: analyticsData});
 });
 
 //start server and listen for the request
